@@ -1,0 +1,36 @@
+name: weuniba_flutter
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+
+  # Abilita le icone Material
+  uses-material-design: true
+
+  # Elenco degli asset usati nell'app
+  assets:
+    - assets/uniba_logo.png
+    - assets/stella_logo.png
+    - assets/buttons/achievement_icon.jpg
+    - assets/buttons/event_icon.png
+    - assets/buttons/game_icon.png
+    - assets/buttons/inventory_icon.png
+    - assets/buttons/map_icon.png
+    - assets/buttons/material_icon.jpg
+    - assets/buttons/mission_icon.png
+    - assets/buttons/shop_icon.png
+    - assets/buttons/tutor_icon.png
