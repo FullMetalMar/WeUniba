@@ -9,7 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  audioplayers: ^5.2.0
+  mobile_scanner: ^3.5.5
   cupertino_icons: ^1.0.8
+  flutter_pdfview: ^1.2.5
+  path_provider: ^2.0.15
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:
@@ -22,16 +27,14 @@ flutter:
 
   # Elenco degli asset usati nell'app
   assets:
-    - assets/uniba_logo.png
+    - assets/buttons/
+    - assets/lucky_charms/
+    - assets/audio/success.mp3
+    - assets/learning_materials/
+    - assets/badges/
+    - assets/coin/
     - assets/stella_logo.png
-    - assets/buttons/achievement_icon.jpg
-    - assets/buttons/event_icon.png
-    - assets/buttons/game_icon.png
-    - assets/buttons/inventory_icon.png
-    - assets/buttons/map_icon.png
-    - assets/buttons/material_icon.jpg
-    - assets/buttons/mission_icon.png
-    - assets/buttons/shop_icon.png
-    - assets/buttons/tutor_icon.png
-    - assets/lucky_charms/santino_fake_man.png
-    - assets/lucky_charms/santino_fake_woman.png
+    - assets/uniba_logo.png
+    - assets/uniba_logo_con_sfondo.jpeg
+    - assets/avatar/
+    - assets/avatar/accessories/

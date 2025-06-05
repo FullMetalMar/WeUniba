@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'InventoryPage.dart';
+import 'package:weuniba_flutter/map_page.dart';
+import 'package:weuniba_flutter/obiettivi_page.dart';
+import 'inventory_page.dart';
+import 'missions_page.dart';
+import 'learning_material_page.dart';
+import 'shop_page.dart';
+import 'tutor_page.dart';
 
 class HomePageWeUniba extends StatefulWidget {
   const HomePageWeUniba({super.key});
@@ -28,7 +34,7 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
     return Scaffold(
       body: Column(
         children: [
-          // Top bar blu estesa fin sopra la status bar del dispositivo
+          // Top bar blu
           Container(
             height: 72,
             color: const Color(0xFF003366),
@@ -102,7 +108,7 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
             ),
           ),
 
-          // Griglia centrata
+          // Griglia dei pulsanti
           Expanded(
             child: Center(
               child: GridView.count(
@@ -133,7 +139,59 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                               builder: (_) => const InventoryPage(),
                             ),
                           );
+                        } else if (item['label'] == 'Mappa') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MapPage()),
+                          );
+                        } else if (item['label'] == 'Missioni') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MissionsPage(),
+                            ),
+                          );
+                        } else if (item['label'] == 'Materiale') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LearningMaterialPage(),
+                            ),
+                          );
+                        } else if (item['label'] == 'Negozio') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const ShopPage()),
+                          );
+                        } else if (item['label'] == 'Tutor') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TutorPage(),
+                            ),
+                          );
+                        } else if (item['label'] == 'Obiettivi') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ObiettiviPage(),
+                            ),
+                          );
+                        } else if (item['label'] == 'Eventi') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Funzionalità in arrivo!'),
+                            ),
+                          );
+                        } else if (item['label'] == 'Gioco') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Funzionalità in arrivo!'),
+                            ),
+                          );
                         }
+
+                        // Aggiungi altre condizioni se vuoi gestire altri pulsanti
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -160,6 +218,7 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
         ],
       ),
 
+      // Barra di navigazione in basso
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: const Color(0xFF003366),
