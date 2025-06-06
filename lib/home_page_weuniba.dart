@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:weuniba_flutter/map_page.dart';
-import 'package:weuniba_flutter/obiettivi_page.dart';
+import 'package:weuniba_flutter/achievement_page.dart';
 import 'inventory_page.dart';
 import 'missions_page.dart';
 import 'learning_material_page.dart';
 import 'shop_page.dart';
 import 'tutor_page.dart';
+import 'event_page.dart';
+import 'account_page.dart';
 
 class HomePageWeUniba extends StatefulWidget {
-  const HomePageWeUniba({super.key});
+  final String username;
+
+  const HomePageWeUniba({super.key, required this.username});
 
   @override
   State<HomePageWeUniba> createState() => _HomePageWeUnibaState();
@@ -174,13 +178,14 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ObiettiviPage(),
+                              builder: (_) => const AchievementPage(),
                             ),
                           );
                         } else if (item['label'] == 'Eventi') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Funzionalità in arrivo!'),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const EventPage(),
                             ),
                           );
                         } else if (item['label'] == 'Gioco') {
@@ -227,6 +232,19 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
           setState(() {
             _currentIndex = index;
           });
+
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AccountPage(username: widget.username),
+              ),
+            );
+          } else if (index == 1) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Sezione chat in arrivo!')),
+            );
+          }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profilo'),

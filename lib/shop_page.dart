@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'session_data.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -7,9 +9,13 @@ class ShopPage extends StatefulWidget {
   State<ShopPage> createState() => _ShopPageState();
 }
 
-class _ShopPageState extends State<ShopPage> {
+class _ShopPageState extends State<ShopPage>
+    with SingleTickerProviderStateMixin {
   String? selectedCategory;
-  int cfuBalance = 42; // esempio saldo
+  int cfuBalance = 42;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
 
   final Map<String, List<Map<String, dynamic>>> categoryItems = {
     'Badge': [
@@ -67,6 +73,113 @@ class _ShopPageState extends State<ShopPage> {
       },
     ],
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  void mostraAnimazioneAcquisto() async {
+    await _audioPlayer.play(AssetSource('audio/purchase.mp3'));
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ScaleTransition(
+        scale: _scaleAnimation,
+        child: AlertDialog(
+          backgroundColor: Colors.green.shade100,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle, color: Colors.green, size: 60),
+              const SizedBox(height: 16),
+              const Text(
+                "Acquisto completato!",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    _controller.forward(from: 0).then((_) {
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.of(context).pop();
+      });
+    });
+  }
+
+  void aggiungiAllInventario(String categoria, Map<String, dynamic> item) {
+    switch (categoria) {
+      case 'Badge':
+        if (!SessionData.badgeInventario.any(
+          (b) => b['path'] == item['immagine'],
+        )) {
+          SessionData.badgeInventario.add({
+            "titolo": item['nome'],
+            "path": item['immagine'],
+          });
+        }
+        break;
+      case 'Accessori':
+        if (!SessionData.accessoriInventario.any(
+          (a) => a['path'] == item['immagine'],
+        )) {
+          SessionData.accessoriInventario.add({
+            "nome": item['nome'],
+            "path": item['immagine'],
+          });
+        }
+        break;
+      case 'Portafortuna':
+        if (!SessionData.portafortunaInventario.any(
+          (p) => p['path'] == item['immagine'],
+        )) {
+          SessionData.portafortunaInventario.add({
+            "nome": item['nome'],
+            "path": item['immagine'],
+          });
+        }
+        break;
+    }
+  }
+
+  bool isItemAcquistato(String categoria, String imagePath) {
+    switch (categoria) {
+      case 'Badge':
+        return SessionData.badgeInventario.any((b) => b['path'] == imagePath);
+      case 'Accessori':
+        return SessionData.accessoriInventario.any(
+          (a) => a['path'] == imagePath,
+        );
+      case 'Portafortuna':
+        return SessionData.portafortunaInventario.any(
+          (p) => p['path'] == imagePath,
+        );
+      default:
+        return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,72 +260,82 @@ class _ShopPageState extends State<ShopPage> {
               itemCount: categoryItems[selectedCategory]!.length,
               itemBuilder: (context, index) {
                 final item = categoryItems[selectedCategory]![index];
+                final alreadyBought = isItemAcquistato(
+                  selectedCategory!,
+                  item['immagine'],
+                );
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
-                    leading: item.containsKey('immagine')
-                        ? Image.asset(item['immagine'], width: 40, height: 40)
-                        : Icon(item['icona'], color: Colors.deepPurple),
+                    leading: Image.asset(
+                      item['immagine'],
+                      width: 40,
+                      height: 40,
+                    ),
                     title: Text(item['nome']),
                     subtitle: Text(item['descrizione']),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${item['prezzo']}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Image.asset(
-                          'assets/coin/CFU2.png',
-                          width: 36,
-                          height: 36,
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text('Acquisto ${item['nome']}'),
-                          content: Row(
+                    trailing: alreadyBought
+                        ? const Icon(Icons.check, color: Colors.green)
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Vuoi acquistare questo oggetto per ${item['prezzo']} ',
+                                '${item['prezzo']}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
+                              const SizedBox(width: 4),
                               Image.asset(
                                 'assets/coin/CFU2.png',
                                 width: 36,
                                 height: 36,
                               ),
-                              const Text('?'),
                             ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Annulla'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Acquistato: ${item['nome']}',
+                    onTap: alreadyBought
+                        ? null
+                        : () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Acquisto ${item['nome']}'),
+                                content: Row(
+                                  children: [
+                                    Text(
+                                      'Vuoi acquistare questo oggetto per ${item['prezzo']} ',
                                     ),
+                                    Image.asset(
+                                      'assets/coin/CFU2.png',
+                                      width: 36,
+                                      height: 36,
+                                    ),
+                                    const Text('?'),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Annulla'),
                                   ),
-                                );
-                              },
-                              child: const Text('Acquista'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        aggiungiAllInventario(
+                                          selectedCategory!,
+                                          item,
+                                        );
+                                      });
+                                      Navigator.pop(context);
+                                      mostraAnimazioneAcquisto();
+                                    },
+                                    child: const Text('Acquista'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                   ),
                 );
               },

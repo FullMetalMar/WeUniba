@@ -1,3 +1,5 @@
+import org.gradle.api.JavaVersion
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -10,13 +12,13 @@ android {
     namespace = "com.example.weuniba_flutter"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {

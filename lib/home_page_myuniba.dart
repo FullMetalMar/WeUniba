@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'home_page_weuniba.dart';
 
 class HomePageMyUniba extends StatefulWidget {
-  const HomePageMyUniba({super.key});
+  final String username;
+
+  const HomePageMyUniba({super.key, required this.username});
 
   @override
   State<HomePageMyUniba> createState() => _HomePageMyUnibaState();
@@ -55,9 +57,13 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const HomePageWeUniba()),
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            HomePageWeUniba(username: widget.username),
+                      ),
                     );
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF5F5F5),
                     shape: RoundedRectangleBorder(
@@ -69,7 +75,11 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset('assets/stella_logo.png', width: 36, height: 36),
+                      Image.asset(
+                        'assets/stella_logo.png',
+                        width: 36,
+                        height: 36,
+                      ),
                       const SizedBox(height: 8),
                       const Text(
                         'Entra in WeUniba',
@@ -102,7 +112,7 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
                           color: Colors.black.withOpacity(0.05),
                           blurRadius: 4,
                           offset: const Offset(2, 2),
-                        )
+                        ),
                       ],
                     ),
                     child: InkWell(
@@ -112,7 +122,11 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(item['icon'], size: 36, color: const Color(0xFF003366)),
+                          Icon(
+                            item['icon'],
+                            size: 36,
+                            color: const Color(0xFF003366),
+                          ),
                           const SizedBox(height: 8),
                           Text(
                             item['label'],
@@ -153,22 +167,13 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
           });
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.description),
             label: 'Piano Studio',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.euro),
-            label: 'Pagamenti',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'Libretto',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.euro), label: 'Pagamenti'),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Libretto'),
         ],
       ),
     );

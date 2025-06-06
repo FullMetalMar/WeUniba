@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weuniba_flutter/home_page_myuniba.dart';
+import 'home_page_myuniba.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,7 +27,9 @@ class _LoginPageState extends State<LoginPage> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const HomePageMyUniba()),
+      MaterialPageRoute(
+        builder: (context) => HomePageMyUniba(username: username),
+      ),
     );
   }
 

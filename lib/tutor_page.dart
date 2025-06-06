@@ -53,10 +53,6 @@ class _TutorPageState extends State<TutorPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Seleziona la materia in cui hai bisogno di aiuto:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 isExpanded: true,
