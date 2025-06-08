@@ -4,19 +4,39 @@ import 'session_data.dart';
 class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key});
 
-  void _showEquipDialog(BuildContext context, String title, String imagePath) {
+  void _showEquipDialog(
+    BuildContext context,
+    String title,
+    String imagePath,
+    String tipo,
+  ) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        contentPadding: const EdgeInsets.all(20),
+        contentPadding: const EdgeInsets.all(24),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(imagePath, height: 100),
-            const SizedBox(height: 16),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[100],
+              ),
+              child: Image.asset(imagePath, height: 180, fit: BoxFit.contain),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF003366),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF003366),
@@ -24,10 +44,18 @@ class InventoryPage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                minimumSize: const Size(double.infinity, 48),
               ),
               onPressed: () {
-                SessionData.badgePath = imagePath;
-                SessionData.titolo = title;
+                switch (tipo) {
+                  case "badge":
+                    SessionData.badgePath = imagePath;
+                    SessionData.titolo = title;
+                    break;
+                  case "portafortuna":
+                    SessionData.portafortunaPath = imagePath;
+                    break;
+                }
                 Navigator.pop(context);
                 ScaffoldMessenger.of(
                   context,
@@ -41,7 +69,7 @@ class InventoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, Widget content) {
+  Widget _buildSection(String title, List<Widget> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -50,60 +78,26 @@ class InventoryPage extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
-        content,
+        Column(children: items),
         const SizedBox(height: 24),
       ],
     );
   }
 
-  Widget _buildBadgeRow(BuildContext context, String title, String imagePath) {
-    return GestureDetector(
-      onTap: () => _showEquipDialog(context, title, imagePath),
-      child: Row(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(right: 12),
-            height: 64,
-            width: 64,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Image.asset(imagePath, fit: BoxFit.contain),
-            ),
-          ),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAccessoryImage(
+  Widget _buildItemRow(
     BuildContext context,
-    String imagePath,
     String title,
+    String imagePath,
+    String tipo,
   ) {
     return GestureDetector(
-      onTap: () => _showEquipDialog(context, title, imagePath),
+      onTap: () => _showEquipDialog(context, title, imagePath, tipo),
       child: Container(
-        margin: const EdgeInsets.only(right: 12),
-        height: 64,
-        width: 64,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
           color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
               color: Colors.black12,
@@ -112,38 +106,27 @@ class InventoryPage extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Image.asset(imagePath, fit: BoxFit.contain),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLuckyCharmCard(
-    BuildContext context,
-    String imagePath,
-    String title,
-  ) {
-    return GestureDetector(
-      onTap: () => _showEquipDialog(context, title, imagePath),
-      child: Container(
-        margin: const EdgeInsets.only(right: 16),
-        height: 180,
-        width: 120,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 2),
+        child: Row(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(right: 12),
+              height: 64,
+              width: 64,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Image.asset(imagePath, fit: BoxFit.contain),
+            ),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(imagePath, fit: BoxFit.cover),
         ),
       ),
     );
@@ -151,6 +134,14 @@ class InventoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Filtra solo i 3 portafortuna ammessi
+    final validCharms = SessionData.portafortunaInventario.where((charm) {
+      final path = charm['path'] ?? '';
+      return path.contains("santino_prof_mare") ||
+          path.contains("santino_prof_cyberpunk") ||
+          path.contains("santino_prof_agraria");
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
@@ -175,51 +166,41 @@ class InventoryPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
+
               _buildSection(
                 'Badge',
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: SessionData.badgeInventario.map((badge) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildBadgeRow(
-                        context,
-                        badge['titolo']!,
-                        badge['path']!,
-                      ),
-                    );
-                  }).toList(),
-                ),
+                SessionData.badgeInventario.map((badge) {
+                  return _buildItemRow(
+                    context,
+                    badge['titolo']!,
+                    badge['path']!,
+                    "badge",
+                  );
+                }).toList(),
               ),
+
               _buildSection(
                 'Accessori',
-                SizedBox(
-                  height: 80,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: SessionData.accessoriInventario.map((accessorio) {
-                      return _buildAccessoryImage(
-                        context,
-                        accessorio['path']!,
-                        accessorio['nome']!,
-                      );
-                    }).toList(),
-                  ),
-                ),
+                SessionData.accessoriInventario.map((accessorio) {
+                  return _buildItemRow(
+                    context,
+                    accessorio['nome']!,
+                    accessorio['path']!,
+                    "accessorio",
+                  );
+                }).toList(),
               ),
+
               _buildSection(
                 'Portafortuna',
-                Row(
-                  children: SessionData.portafortunaInventario.map((
-                    portafortuna,
-                  ) {
-                    return _buildLuckyCharmCard(
-                      context,
-                      portafortuna['path']!,
-                      portafortuna['nome']!,
-                    );
-                  }).toList(),
-                ),
+                validCharms.map((charm) {
+                  return _buildItemRow(
+                    context,
+                    charm['nome']!,
+                    charm['path']!,
+                    "portafortuna",
+                  );
+                }).toList(),
               ),
             ],
           ),

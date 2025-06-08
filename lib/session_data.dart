@@ -21,24 +21,31 @@ class SessionData {
 
   static final List<Map<String, String>> accessoriInventario = [
     {
-      "nome": "Cappellino",
+      "nome": "Cappellino Brandizzato",
       "path": "assets/avatar/accessories/accessorio_cappellino.png",
     },
     {
-      "nome": "Occhiali",
+      "nome": "Occhiali specchiati in arancione",
       "path": "assets/avatar/accessories/accessorio_occhiali.png",
     },
-    {"nome": "Felpa", "path": "assets/avatar/accessories/accessorio_felpa.png"},
+    {
+      "nome": "Felpa Brandizzata",
+      "path": "assets/avatar/accessories/accessorio_felpa.png",
+    },
   ];
 
   static final List<Map<String, String>> portafortunaInventario = [
     {
-      "nome": "Santino Uomo",
-      "path": "assets/lucky_charms/santino_fake_man.png",
+      'nome': 'Prof.ssa x al Mare',
+      'path': 'assets/lucky_charms/santino_prof_mare.png',
     },
     {
-      "nome": "Santino Donna",
-      "path": "assets/lucky_charms/santino_fake_woman.png",
+      'nome': 'Prof. x in stile Cyberpunk',
+      'path': 'assets/lucky_charms/santino_prof_cyberpunk.png',
+    },
+    {
+      'nome': 'Prof. x Agraria',
+      'path': 'assets/lucky_charms/santino_prof_agraria.png',
     },
   ];
 }

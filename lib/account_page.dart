@@ -22,7 +22,7 @@ class _AccountPageState extends State<AccountPage> {
     if (!SessionData.isAvatarPopupShown) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _mostraPopupSceltaAvatar();
-        SessionData.isAvatarPopupShown = true; // segna che è stato mostrato
+        SessionData.isAvatarPopupShown = true;
       });
     }
   }
@@ -50,60 +50,8 @@ class _AccountPageState extends State<AccountPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        setStateDialog(() {
-                          avatarScelto = "female";
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: avatarScelto == "female"
-                                ? Colors.blue
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                        child: const CircleAvatar(
-                          backgroundImage: AssetImage(
-                            "assets/avatar/avatar_mezzo_female.png",
-                          ),
-                          radius: 50,
-                          backgroundColor: Colors.transparent,
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        setStateDialog(() {
-                          avatarScelto = "male";
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: avatarScelto == "male"
-                                ? Colors.blue
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                        child: const CircleAvatar(
-                          backgroundImage: AssetImage(
-                            "assets/avatar/avatar_mezzo_male.png",
-                          ),
-                          radius: 50,
-                          backgroundColor: Colors.transparent,
-                        ),
-                      ),
-                    ),
+                    _buildAvatarOption("female", setStateDialog),
+                    _buildAvatarOption("male", setStateDialog),
                   ],
                 ),
               ],
@@ -134,6 +82,35 @@ class _AccountPageState extends State<AccountPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAvatarOption(
+    String gender,
+    void Function(void Function()) setStateDialog,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        setStateDialog(() {
+          avatarScelto = gender;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: avatarScelto == gender ? Colors.blue : Colors.transparent,
+            width: 3,
+          ),
+        ),
+        child: CircleAvatar(
+          backgroundImage: AssetImage("assets/avatar/avatar_mezzo_$gender.png"),
+          radius: 50,
+          backgroundColor: Colors.transparent,
+        ),
+      ),
     );
   }
 
@@ -173,25 +150,45 @@ class _AccountPageState extends State<AccountPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: SessionData.badgeInventario.map((badge) {
-          return ListTile(
-            leading: Image.asset(badge["path"]!, height: 40, width: 40),
-            title: Text(badge["titolo"]!),
-            onTap: () => _selezionaBadge(badge["titolo"]!, badge["path"]!),
-          );
-        }).toList(),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 16,
+              runSpacing: 16,
+              children: SessionData.badgeInventario.map((badge) {
+                return GestureDetector(
+                  onTap: () =>
+                      _selezionaBadge(badge["titolo"]!, badge["path"]!),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(badge["path"]!, height: 64),
+                      const SizedBox(height: 4),
+                      Text(badge["titolo"]!),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  SessionData.badgePath = "";
+                  SessionData.titolo = "";
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Rimuovi badge"),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  void _selezionaBadge(String nuovoTitolo, String nuovoBadgePath) {
-    setState(() {
-      SessionData.titolo = nuovoTitolo;
-      SessionData.badgePath = nuovoBadgePath;
-    });
-    Navigator.pop(context);
   }
 
   void _cambiaPortafortuna() {
@@ -200,30 +197,66 @@ class _AccountPageState extends State<AccountPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildPortafortunaItem(
+                  "assets/lucky_charms/santino_prof_mare.png",
+                  "Mare",
+                ),
+                _buildPortafortunaItem(
+                  "assets/lucky_charms/santino_prof_cyberpunk.png",
+                  "Cyberpunk",
+                ),
+                _buildPortafortunaItem(
+                  "assets/lucky_charms/santino_prof_agraria.png",
+                  "Agraria",
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  SessionData.portafortunaPath = "";
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Rimuovi portafortuna"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortafortunaItem(String path, String title) {
+    return GestureDetector(
+      onTap: () => _selezionaPortafortuna(path),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          GestureDetector(
-            onTap: () => _selezionaPortafortuna(
-              "assets/lucky_charms/santino_fake_man.png",
-            ),
-            child: Image.asset(
-              "assets/lucky_charms/santino_fake_man.png",
-              height: 100,
-            ),
-          ),
-          GestureDetector(
-            onTap: () => _selezionaPortafortuna(
-              "assets/lucky_charms/santino_fake_woman.png",
-            ),
-            child: Image.asset(
-              "assets/lucky_charms/santino_fake_woman.png",
-              height: 100,
-            ),
-          ),
+          Image.asset(path, height: 100),
+          const SizedBox(height: 4),
+          Text(title),
         ],
       ),
     );
+  }
+
+  void _selezionaBadge(String titolo, String path) {
+    setState(() {
+      SessionData.titolo = titolo;
+      SessionData.badgePath = path;
+    });
+    Navigator.pop(context);
   }
 
   void _selezionaPortafortuna(String path) {
@@ -238,6 +271,34 @@ class _AccountPageState extends State<AccountPage> {
       context,
       MaterialPageRoute(builder: (context) => const AvatarPage()),
     ).then((_) => setState(() {}));
+  }
+
+  Widget _buildBadgeCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Image.asset(SessionData.badgePath, height: 100),
+    );
+  }
+
+  Widget _buildPortafortunaCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Image.asset(SessionData.portafortunaPath, height: 100),
+    );
   }
 
   @override
@@ -264,38 +325,29 @@ class _AccountPageState extends State<AccountPage> {
             ),
             Text(widget.username, style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 12),
-
             if (SessionData.avatarPath.isNotEmpty)
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 height: 160,
                 child: Image.asset(SessionData.avatarPath, fit: BoxFit.contain),
               ),
-
-            if (SessionData.badgePath.isNotEmpty)
+            if (SessionData.badgePath.isNotEmpty &&
+                SessionData.portafortunaPath.isNotEmpty)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(SessionData.badgePath, height: 40),
-                  const SizedBox(width: 8),
-                  Text(
-                    SessionData.titolo,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
+                  Expanded(child: _buildBadgeCard()),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildPortafortunaCard()),
                 ],
               )
+            else if (SessionData.badgePath.isNotEmpty)
+              _buildBadgeCard()
+            else if (SessionData.portafortunaPath.isNotEmpty)
+              _buildPortafortunaCard()
             else
-              const Text("Badge non impostato"),
-
-            const SizedBox(height: 16),
-
-            if (SessionData.portafortunaPath.isNotEmpty)
-              Image.asset(SessionData.portafortunaPath, height: 80)
-            else
-              const Text("Portafortuna non impostato"),
-
+              const Text("Nessun badge o portafortuna impostato"),
             const SizedBox(height: 32),
-
             ElevatedButton(
               onPressed: _modificaNome,
               style: ElevatedButton.styleFrom(
