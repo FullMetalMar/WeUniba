@@ -60,16 +60,22 @@ class _ShopPageState extends State<ShopPage>
     ],
     'Portafortuna': [
       {
-        'nome': 'Santino Fake Uomo',
-        'descrizione': 'Santino scaramantico del prof. Someone',
+        'nome': 'Santino Chimica',
+        'descrizione': 'Santino scaramantico del prof. di Chimica',
         'prezzo': 3,
-        'immagine': 'assets/lucky_charms/santino_fake_man.png',
+        'immagine': 'assets/lucky_charms/santino_prof_chimica.png',
       },
       {
-        'nome': 'Santino Fake Donna',
-        'descrizione': 'Santino scaramantico della prof.ssa Someone',
+        'nome': 'Santino Filosofia',
+        'descrizione': 'Santino scaramantico della prof.ssa di Filosofia',
         'prezzo': 3,
-        'immagine': 'assets/lucky_charms/santino_fake_woman.png',
+        'immagine': 'assets/lucky_charms/santino_prof_filosofia.png',
+      },
+      {
+        'nome': 'Santino Hippie',
+        'descrizione': 'Santino zen del prof. Hippie',
+        'prezzo': 3,
+        'immagine': 'assets/lucky_charms/santino_prof_hippie.png',
       },
     ],
   };
@@ -109,10 +115,10 @@ class _ShopPageState extends State<ShopPage>
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 60),
-              const SizedBox(height: 16),
-              const Text(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.green, size: 60),
+              SizedBox(height: 16),
+              Text(
                 "Acquisto completato!",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
@@ -221,37 +227,20 @@ class _ShopPageState extends State<ShopPage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
-                      backgroundColor: const Color(0xFF003366),
-                      foregroundColor: Colors.white,
+                  for (var category in categoryItems.keys)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                          backgroundColor: const Color(0xFF003366),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () =>
+                            setState(() => selectedCategory = category),
+                        child: Text(category),
+                      ),
                     ),
-                    onPressed: () => setState(() => selectedCategory = 'Badge'),
-                    child: const Text('Badge'),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
-                      backgroundColor: const Color(0xFF003366),
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: () =>
-                        setState(() => selectedCategory = 'Accessori'),
-                    child: const Text('Accessori'),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
-                      backgroundColor: const Color(0xFF003366),
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: () =>
-                        setState(() => selectedCategory = 'Portafortuna'),
-                    child: const Text('Portafortuna'),
-                  ),
                 ],
               ),
             )
@@ -308,8 +297,8 @@ class _ShopPageState extends State<ShopPage>
                                     ),
                                     Image.asset(
                                       'assets/coin/CFU2.png',
-                                      width: 36,
-                                      height: 36,
+                                      width: 24,
+                                      height: 24,
                                     ),
                                     const Text('?'),
                                   ],
@@ -321,12 +310,28 @@ class _ShopPageState extends State<ShopPage>
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
+                                      if (cfuBalance < item['prezzo']) {
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Credito insufficiente per effettuare l’acquisto.',
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
+
                                       setState(() {
                                         aggiungiAllInventario(
                                           selectedCategory!,
                                           item,
                                         );
+                                        cfuBalance -= item['prezzo'] as int;
                                       });
+
                                       Navigator.pop(context);
                                       mostraAnimazioneAcquisto();
                                     },

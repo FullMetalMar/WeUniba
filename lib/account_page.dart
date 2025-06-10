@@ -14,6 +14,14 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   String avatarScelto = "";
   bool avatarSelezionato = false;
+  String? genere;
+  String? carnagione;
+
+  String? badgeSelezionato;
+  String? badgePathSelezionato;
+
+  String? portafortunaSelezionato;
+  String? portafortunaPathSelezionato;
 
   @override
   void initState() {
@@ -28,87 +36,229 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   void _mostraPopupSceltaAvatar() {
+    String? sessoTemp = genere;
+    String? carnagioneTemp = carnagione;
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
-          builder: (context, setStateDialog) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: const Text(
-              "Scegli il tuo avatar",
-              style: TextStyle(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text("Tocca un avatar per selezionarlo"),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          builder: (context, setStateDialog) {
+            bool stepGenereConfermato = genere != null;
+            bool stepCarnagioneConfermato = carnagione != null;
+
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 40,
+                vertical: 120,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildAvatarOption("female", setStateDialog),
-                    _buildAvatarOption("male", setStateDialog),
+                    if (!stepGenereConfermato) ...[
+                      const Text(
+                        "Chi vuoi essere?",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _genderButton(
+                            setStateDialog,
+                            sessoTemp,
+                            "m",
+                            "Ragazzo",
+                            (val) => sessoTemp = val,
+                          ),
+                          _genderButton(
+                            setStateDialog,
+                            sessoTemp,
+                            "f",
+                            "Ragazza",
+                            (val) => sessoTemp = val,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            if (sessoTemp != null) {
+                              setStateDialog(() {
+                                genere = sessoTemp;
+                              });
+                            }
+                          },
+                          child: const Text("Conferma"),
+                        ),
+                      ),
+                    ] else if (!stepCarnagioneConfermato) ...[
+                      const Text(
+                        "Scegli la tua carnagione",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _skinButton(
+                            setStateDialog,
+                            carnagioneTemp,
+                            "scura",
+                            const Color(0xFF66320A),
+                            (val) => carnagioneTemp = val,
+                          ),
+                          const SizedBox(width: 20),
+                          _skinButton(
+                            setStateDialog,
+                            carnagioneTemp,
+                            "chiara",
+                            const Color(0xFFEAC58E),
+                            (val) => carnagioneTemp = val,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            if (carnagioneTemp != null) {
+                              setStateDialog(() {
+                                carnagione = carnagioneTemp;
+                              });
+                            }
+                          },
+                          child: const Text("Conferma"),
+                        ),
+                      ),
+                    ] else ...[
+                      const Text(
+                        "Avatar selezionato!",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          String avatarPath = "";
+                          if (genere == "m" && carnagione == "scura") {
+                            avatarPath =
+                                "assets/avatar/complexion/black/Avatar_bla_bru_m.png";
+                          } else if (genere == "f" && carnagione == "scura") {
+                            avatarPath =
+                                "assets/avatar/complexion/black/Avatar_bla_bru_f.png";
+                          } else if (genere == "m" && carnagione == "chiara") {
+                            avatarPath =
+                                "assets/avatar/complexion/white/Avatar_wh_bru_m.png";
+                          } else if (genere == "f" && carnagione == "chiara") {
+                            avatarPath =
+                                "assets/avatar/complexion/white/Avatar_wh_bru_f.png";
+                          }
+
+                          setState(() {
+                            avatarScelto = avatarPath;
+                            avatarSelezionato = true;
+                            SessionData.avatarPath = avatarPath;
+                          });
+
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Conferma Avatar"),
+                      ),
+                    ],
                   ],
                 ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  avatarSelezionato = true;
-                  Navigator.pop(context);
-                },
-                child: const Text("Non ora"),
               ),
-              ElevatedButton(
-                onPressed: avatarScelto.isNotEmpty
-                    ? () {
-                        setState(() {
-                          SessionData.avatarPath = avatarScelto == "female"
-                              ? "assets/avatar/avatar_female.png"
-                              : "assets/avatar/avatar_male.png";
-                          avatarSelezionato = true;
-                        });
-                        Navigator.pop(context);
-                      }
-                    : null,
-                child: const Text("Conferma scelta"),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildAvatarOption(
-    String gender,
+  Widget _genderButton(
     void Function(void Function()) setStateDialog,
+    String? sessoSelezionato,
+    String value,
+    String label,
+    void Function(String) aggiornaTemp,
   ) {
+    final isSelected = sessoSelezionato == value;
+
     return GestureDetector(
-      onTap: () {
-        setStateDialog(() {
-          avatarScelto = gender;
-        });
-      },
+      onTap: () => setStateDialog(() => aggiornaTemp(value)),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? Colors.blue : Colors.transparent,
+                width: 3,
+              ),
+            ),
+            child: CircleAvatar(
+              radius: 30,
+              backgroundColor: isSelected ? Colors.blue[100] : Colors.grey[200],
+              child: Icon(
+                value == "m" ? Icons.male : Icons.female,
+                color: Colors.black87,
+                size: 30,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Colors.blue : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _skinButton(
+    void Function(void Function()) setStateDialog,
+    String? carnagioneSelezionata,
+    String value,
+    Color color,
+    void Function(String) aggiornaTemp,
+  ) {
+    final isSelected = carnagioneSelezionata == value;
+
+    return GestureDetector(
+      onTap: () => setStateDialog(() => aggiornaTemp(value)),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.all(4),
+        width: 60,
+        height: 60,
         decoration: BoxDecoration(
+          color: color,
           shape: BoxShape.circle,
           border: Border.all(
-            color: avatarScelto == gender ? Colors.blue : Colors.transparent,
-            width: 3,
+            color: isSelected ? Colors.blue : Colors.grey.shade300,
+            width: isSelected ? 4 : 1,
           ),
-        ),
-        child: CircleAvatar(
-          backgroundImage: AssetImage("assets/avatar/avatar_mezzo_$gender.png"),
-          radius: 50,
-          backgroundColor: Colors.transparent,
         ),
       ),
     );
@@ -145,125 +295,195 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   void _modificaBadge() {
-    showModalBottomSheet(
+    // inizializza selezione con quella corrente
+    badgeSelezionato = SessionData.titolo.isNotEmpty
+        ? SessionData.titolo
+        : null;
+    badgePathSelezionato = SessionData.badgePath.isNotEmpty
+        ? SessionData.badgePath
+        : null;
+
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 16,
-              runSpacing: 16,
-              children: SessionData.badgeInventario.map((badge) {
-                return GestureDetector(
-                  onTap: () =>
-                      _selezionaBadge(badge["titolo"]!, badge["path"]!),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(badge["path"]!, height: 64),
-                      const SizedBox(height: 4),
-                      Text(badge["titolo"]!),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  SessionData.badgePath = "";
-                  SessionData.titolo = "";
-                });
-                Navigator.pop(context);
-              },
-              child: const Text("Rimuovi badge"),
-            ),
-          ],
-        ),
-      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text(
+                "Scegli un badge",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: SessionData.badgeInventario.map((badge) {
+                    final bool isSelected = badgeSelezionato == badge["titolo"];
+                    return GestureDetector(
+                      onTap: () {
+                        setStateDialog(() {
+                          badgeSelezionato = badge["titolo"];
+                          badgePathSelezionato = badge["path"];
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.blue
+                                : Colors.transparent,
+                            width: 3,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(badge["path"]!, height: 64),
+                            const SizedBox(height: 4),
+                            Text(badge["titolo"]!),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      badgeSelezionato = null;
+                      badgePathSelezionato = null;
+                      SessionData.badgePath = "";
+                      SessionData.titolo = "";
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Rimuovi badge"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (badgeSelezionato != null &&
+                        badgePathSelezionato != null) {
+                      setState(() {
+                        SessionData.titolo = badgeSelezionato!;
+                        SessionData.badgePath = badgePathSelezionato!;
+                      });
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text("Conferma"),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
   void _cambiaPortafortuna() {
-    showModalBottomSheet(
+    // inizializza selezione con quella corrente
+    portafortunaSelezionato = SessionData.portafortunaPath.isNotEmpty
+        ? SessionData.portafortunaPath
+        : null;
+
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text(
+                "Scegli un portafortuna",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: SessionData.portafortunaInventario.map((charm) {
+                    return _buildPortafortunaItemSelectable(
+                      charm['path']!,
+                      charm['nome']!,
+                      setStateDialog,
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      portafortunaSelezionato = null;
+                      SessionData.portafortunaPath = "";
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Rimuovi portafortuna"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (portafortunaSelezionato != null) {
+                      setState(() {
+                        SessionData.portafortunaPath = portafortunaSelezionato!;
+                      });
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text("Conferma"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPortafortunaItemSelectable(
+    String path,
+    String title,
+    void Function(void Function()) setStateDialog,
+  ) {
+    final bool isSelected = portafortunaSelezionato == path;
+    return GestureDetector(
+      onTap: () {
+        setStateDialog(() {
+          portafortunaSelezionato = path;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.transparent,
+            width: 3,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 16,
-              runSpacing: 16,
-              children: [
-                _buildPortafortunaItem(
-                  "assets/lucky_charms/santino_prof_mare.png",
-                  "Mare",
-                ),
-                _buildPortafortunaItem(
-                  "assets/lucky_charms/santino_prof_cyberpunk.png",
-                  "Cyberpunk",
-                ),
-                _buildPortafortunaItem(
-                  "assets/lucky_charms/santino_prof_agraria.png",
-                  "Agraria",
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  SessionData.portafortunaPath = "";
-                });
-                Navigator.pop(context);
-              },
-              child: const Text("Rimuovi portafortuna"),
-            ),
+            Image.asset(path, height: 64),
+            const SizedBox(height: 4),
+            Text(title),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildPortafortunaItem(String path, String title) {
-    return GestureDetector(
-      onTap: () => _selezionaPortafortuna(path),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(path, height: 100),
-          const SizedBox(height: 4),
-          Text(title),
-        ],
-      ),
-    );
-  }
-
-  void _selezionaBadge(String titolo, String path) {
-    setState(() {
-      SessionData.titolo = titolo;
-      SessionData.badgePath = path;
-    });
-    Navigator.pop(context);
-  }
-
-  void _selezionaPortafortuna(String path) {
-    setState(() {
-      SessionData.portafortunaPath = path;
-    });
-    Navigator.pop(context);
   }
 
   void _vaiAAvatarPage() {

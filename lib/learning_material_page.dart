@@ -142,27 +142,58 @@ class _LearningMaterialPageState extends State<LearningMaterialPage> {
                       itemCount: materiali.length,
                       itemBuilder: (context, index) {
                         final mat = materiali[index];
+                        final double progress = 0.4; // Fittizio per ora
+                        final int percent = (progress * 100).toInt();
+
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Text(mat['titolo'] ?? ''),
-                            subtitle: Text(mat['descrizione'] ?? ''),
-                            trailing: const Icon(
-                              Icons.picture_as_pdf,
-                              color: Colors.red,
-                            ),
-                            onTap: () {
-                              if (mat.containsKey('asset')) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PDFAssetViewer(
-                                      assetPath: mat['asset']!,
-                                    ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  title: Text(mat['titolo'] ?? ''),
+                                  subtitle: Text(mat['descrizione'] ?? ''),
+                                  trailing: const Icon(
+                                    Icons.picture_as_pdf,
+                                    color: Colors.grey,
                                   ),
-                                );
-                              }
-                            },
+                                  enabled: false, // disabilitato
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: LinearProgressIndicator(
+                                          value: progress,
+                                          minHeight: 8,
+                                          backgroundColor: Colors.grey.shade300,
+                                          valueColor:
+                                              const AlwaysStoppedAnimation<
+                                                Color
+                                              >(
+                                                Color(
+                                                  0xFF4CAF50,
+                                                ), // verde progressivo
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      "$percent%",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF4CAF50),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class SessionData {
   static String nome = "";
   static String avatarPath = "";
@@ -5,6 +7,44 @@ class SessionData {
   static String titolo = "";
   static String portafortunaPath = "";
   static bool isAvatarPopupShown = false;
+
+  static int livello = 5;
+  static int xpCorrente = 70; // su 100
+  static int xpMassimo = 100;
+
+  static void aggiungiXP(BuildContext context, int xp) {
+    int oldLevel = livello;
+    xpCorrente += xp;
+
+    while (xpCorrente >= xpMassimo) {
+      xpCorrente -= xpMassimo;
+      livello++;
+      // (facoltativo) aumenta la difficoltà
+      // xpMassimo += 25;
+    }
+
+    if (livello > oldLevel) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "🎉 Level Up!",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text("Complimenti! Ora sei al livello $livello"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Ok"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   // Inventario statico iniziale
   static final List<Map<String, String>> badgeInventario = [
@@ -48,4 +88,6 @@ class SessionData {
       'path': 'assets/lucky_charms/santino_prof_agraria.png',
     },
   ];
+
+  static String accessorioEquipaggiato = "";
 }

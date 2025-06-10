@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'session_data.dart'; // Assicurati che il percorso sia corretto
 
 class MissionsPage extends StatefulWidget {
   const MissionsPage({super.key});
@@ -79,11 +80,12 @@ class _MissionsPageState extends State<MissionsPage> {
       setState(() {
         _completedMissions.add(index);
       });
+      SessionData.aggiungiXP(context, 15); // aggiungi XP
       await _playSuccessSound();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'QR validato! Hai completato: ${_missions[index]['missione']}',
+            'QR validato! Hai completato: ${_missions[index]['missione']} (+15 XP)',
           ),
         ),
       );
@@ -175,11 +177,15 @@ class _MissionsPageState extends State<MissionsPage> {
                               setState(() {
                                 _completedMissions.add(index);
                               });
+                              SessionData.aggiungiXP(
+                                context,
+                                15,
+                              ); // aggiungi XP
                               await _playSuccessSound();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    'Hai completato: ${mission['missione']}',
+                                    'Hai completato: ${mission['missione']} (+15 XP)',
                                   ),
                                 ),
                               );

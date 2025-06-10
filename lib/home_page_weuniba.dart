@@ -8,6 +8,9 @@ import 'shop_page.dart';
 import 'tutor_page.dart';
 import 'event_page.dart';
 import 'account_page.dart';
+import 'settings_page.dart';
+import 'help_page.dart';
+import 'session_data.dart';
 
 class HomePageWeUniba extends StatefulWidget {
   final String username;
@@ -40,48 +43,82 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
         children: [
           // Top bar blu
           Container(
-            height: 72,
+            height: 90,
             color: const Color(0xFF003366),
             padding: const EdgeInsets.only(
-              top: 24,
+              top: 28,
               left: 16,
               right: 16,
               bottom: 8,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.settings, color: Colors.white),
-                    SizedBox(width: 12),
-                    Icon(Icons.help_outline, color: Colors.white),
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.settings, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.help_outline, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const HelpPage()),
+                        );
+                      },
+                    ),
                   ],
                 ),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text(
-                      'Livello 5',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      width: 100,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5),
+                    Text(
+                      '${SessionData.xpCorrente}/${SessionData.xpMassimo} XP',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
                       ),
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: 0.7,
-                        child: Container(
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text(
+                          'Livello ${SessionData.livello}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 100,
+                          height: 10,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.white.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(5),
                           ),
+                          child: FractionallySizedBox(
+                            alignment: Alignment.centerLeft,
+                            widthFactor: SessionData.xpMassimo == 0
+                                ? 0
+                                : SessionData.xpCorrente /
+                                      SessionData.xpMassimo,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -154,7 +191,10 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                             MaterialPageRoute(
                               builder: (_) => const MissionsPage(),
                             ),
-                          );
+                          ).then((_) {
+                            // Aggiorna la home per riflettere i nuovi XP
+                            setState(() {});
+                          });
                         } else if (item['label'] == 'Materiale') {
                           Navigator.push(
                             context,
@@ -195,8 +235,6 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                             ),
                           );
                         }
-
-                        // Aggiungi altre condizioni se vuoi gestire altri pulsanti
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

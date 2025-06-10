@@ -134,13 +134,7 @@ class InventoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Filtra solo i 3 portafortuna ammessi
-    final validCharms = SessionData.portafortunaInventario.where((charm) {
-      final path = charm['path'] ?? '';
-      return path.contains("santino_prof_mare") ||
-          path.contains("santino_prof_cyberpunk") ||
-          path.contains("santino_prof_agraria");
-    }).toList();
+    final validCharms = SessionData.portafortunaInventario;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
