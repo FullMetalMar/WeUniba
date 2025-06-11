@@ -194,7 +194,7 @@ appBar: AppBar(
           ),
         );
       },
-      child: Icon(Icons.location_on, size: 28, color: Colors.red),
+      child: Icon(Icons.location_on, size: 28, color: Color(0xFF003366)),
     );
   }
 }
@@ -216,7 +216,7 @@ Widget _buildMarker1(BuildContext context, String title, String description, {Ic
         ),
       );
     },
-    child: Icon(icon, size: 46, color: Colors.deepOrange),
+    child: Icon(icon, size: 46, color: Color(0xFF003366)),
   );
 }
 
@@ -238,7 +238,7 @@ Widget _buildMarker2(BuildContext context, String title, String description, {Ic
         ),
       );
     },
-    child: Icon(icon, size: 30, color: Colors.blue[900]),
+    child: Icon(icon, size: 30, color: Color(0xFF003366)),
   );
 }
 
