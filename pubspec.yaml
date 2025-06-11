@@ -34,11 +34,10 @@ flutter:
     - assets/learning_materials/
     - assets/badges/
     - assets/coin/
-    - assets/stella_logo.png
-    - assets/uniba_logo.png
-    - assets/uniba_logo_con_sfondo.jpeg
     - assets/avatar/
     - assets/avatar/accessories/
     - assets/avatar/complexion/black/
     - assets/avatar/complexion/white/
     - assets/map/campus_map.png
+    - assets/avatar/accessories/avatar_with_occhiali/
+    - assets/logo/

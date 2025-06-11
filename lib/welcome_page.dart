@@ -19,7 +19,7 @@ class WelcomePage extends StatelessWidget {
               children: [
                 // Logo
                 Image.asset(
-                  'assets/uniba_logo.png',
+                  'assets/logo/uniba_logo.png',
                   width: 200,
                   height: 200,
                   fit: BoxFit.contain,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page_weuniba.dart';
+import 'weuniba_transistion_screen.dart';
 
 class HomePageMyUniba extends StatefulWidget {
   final String username;
@@ -45,7 +45,7 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
           // Spazio aggiuntivo prima del pulsante
           const SizedBox(height: 8),
 
-          // Pulsante quadrato "Entra in WeUniba" sopra la griglia
+          // Pulsante quadrato con solo il logo ingrandito
           Align(
             alignment: Alignment.center,
             child: Padding(
@@ -53,40 +53,34 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
               child: SizedBox(
                 width: 100,
                 height: 100,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            HomePageWeUniba(username: widget.username),
+                child: Hero(
+                  tag: 'weuniba-logo',
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          transitionDuration: const Duration(milliseconds: 800),
+                          pageBuilder: (_, __, ___) =>
+                              const WeUnibaTransitionScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF5F5F5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                  },
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF5F5F5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      elevation: 2,
+                      padding: EdgeInsets.zero,
                     ),
-                    elevation: 2,
-                    padding: EdgeInsets.zero,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/stella_logo.png',
-                        width: 36,
-                        height: 36,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        'assets/logo/weuniba_logo.png',
+                        fit: BoxFit.cover,
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Entra in WeUniba',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

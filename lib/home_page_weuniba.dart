@@ -14,7 +14,6 @@ import 'chat_page.dart';
 import 'session_data.dart';
 import 'game_page.dart';
 
-
 class HomePageWeUniba extends StatefulWidget {
   final String username;
 
@@ -29,10 +28,10 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
     {'icon': 'assets/buttons/inventory_icon.png', 'label': 'Inventario'},
     {'icon': 'assets/buttons/map_icon.png', 'label': 'Mappa'},
     {'icon': 'assets/buttons/mission_icon.png', 'label': 'Missioni'},
-    {'icon': 'assets/buttons/material_icon.jpg', 'label': 'Materiale'},
+    {'icon': 'assets/buttons/material_icon.png', 'label': 'Materiale'},
     {'icon': 'assets/buttons/shop_icon.png', 'label': 'Negozio'},
     {'icon': 'assets/buttons/tutor_icon.png', 'label': 'Tutor'},
-    {'icon': 'assets/buttons/achievement_icon.jpg', 'label': 'Obiettivi'},
+    {'icon': 'assets/buttons/achievement_icon.png', 'label': 'Obiettivi'},
     {'icon': 'assets/buttons/event_icon.png', 'label': 'Eventi'},
     {'icon': 'assets/buttons/game_icon.png', 'label': 'Gioco'},
   ];
@@ -232,9 +231,7 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                         } else if (item['label'] == 'Gioco') {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => const GamePage(),
-                            ),
+                            MaterialPageRoute(builder: (_) => const GamePage()),
                           );
                         }
                       },

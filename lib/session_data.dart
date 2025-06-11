@@ -9,8 +9,10 @@ class SessionData {
   static bool isAvatarPopupShown = false;
 
   static int livello = 5;
-  static int xpCorrente = 70; // su 100
+  static int xpCorrente = 70;
   static int xpMassimo = 100;
+
+  static String? accessorioEquipaggiato; // può essere null
 
   static void aggiungiXP(BuildContext context, int xp) {
     int oldLevel = livello;
@@ -19,8 +21,6 @@ class SessionData {
     while (xpCorrente >= xpMassimo) {
       xpCorrente -= xpMassimo;
       livello++;
-      // (facoltativo) aumenta la difficoltà
-      // xpMassimo += 25;
     }
 
     if (livello > oldLevel) {
@@ -46,7 +46,8 @@ class SessionData {
     }
   }
 
-  // Inventario statico iniziale
+  // --- Inventario iniziale ---
+
   static final List<Map<String, String>> badgeInventario = [
     {
       "titolo": "Lag Spirituale",
@@ -65,7 +66,7 @@ class SessionData {
       "path": "assets/avatar/accessories/accessorio_cappellino.png",
     },
     {
-      "nome": "Occhiali specchiati in arancione",
+      "nome": "Occhiali da vista",
       "path": "assets/avatar/accessories/accessorio_occhiali.png",
     },
     {
@@ -88,6 +89,4 @@ class SessionData {
       'path': 'assets/lucky_charms/santino_prof_agraria.png',
     },
   ];
-
-  static String accessorioEquipaggiato = "";
 }

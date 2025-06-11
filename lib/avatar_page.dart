@@ -17,27 +17,35 @@ class _AvatarPageState extends State<AvatarPage> {
 
   String carnagioneScelta = SessionData.avatarPath.contains("bla")
       ? "bla"
-      : "wh"; // default
-
+      : "wh";
   String capelliScelti = SessionData.avatarPath.contains("bio")
       ? "bio"
       : SessionData.avatarPath.contains("ros")
       ? "ros"
-      : "bru"; // default
+      : "bru";
 
   void _aggiornaAvatar() {
     final folder = carnagioneScelta == "bla" ? "black" : "white";
     final gender = avatarScelto == "male" ? "m" : "f";
 
-    setState(() {
+    // Verifica se gli occhiali sono equipaggiati
+    final occhialiEquipaggiati =
+        SessionData.accessorioEquipaggiato ==
+        "assets/avatar/accessories/accessorio_occhiali.png";
+
+    if (occhialiEquipaggiati) {
+      SessionData.avatarPath =
+          "assets/avatar/accessories/avatar_with_occhiali/Avatar_${carnagioneScelta}_${capelliScelti}_${gender}_occhiali.png";
+    } else {
       SessionData.avatarPath =
           "assets/avatar/complexion/$folder/Avatar_${carnagioneScelta}_${capelliScelti}_${gender}.png";
-    });
+    }
+
+    setState(() {}); // Aggiorna l'interfaccia
   }
 
   void _modificaSesso() {
-    String sessoTemp = avatarScelto; // variabile temporanea
-
+    String sessoTemp = avatarScelto;
     showDialog(
       context: context,
       builder: (context) {
@@ -115,7 +123,6 @@ class _AvatarPageState extends State<AvatarPage> {
     void Function(String) aggiornaTemp,
   ) {
     final isSelected = sessoSelezionato == value;
-
     return GestureDetector(
       onTap: () => setStateDialog(() => aggiornaTemp(value)),
       child: Column(
@@ -208,8 +215,7 @@ class _AvatarPageState extends State<AvatarPage> {
   }
 
   void _modificaCapelli() {
-    String capelliTemp = capelliScelti; // Variabile temporanea
-
+    String capelliTemp = capelliScelti;
     showDialog(
       context: context,
       builder: (context) {
@@ -294,11 +300,8 @@ class _AvatarPageState extends State<AvatarPage> {
     void Function(String) aggiornaTemp,
   ) {
     final isSelected = capelliSelezionati == code;
-
     return GestureDetector(
-      onTap: () => setStateDialog(() {
-        aggiornaTemp(code);
-      }),
+      onTap: () => setStateDialog(() => aggiornaTemp(code)),
       child: Column(
         children: [
           Container(
@@ -372,11 +375,9 @@ class _AvatarPageState extends State<AvatarPage> {
                       children: SessionData.accessoriInventario.map((acc) {
                         final isSelected = accessorioTemp == acc['path'];
                         return GestureDetector(
-                          onTap: () {
-                            setStateDialog(() {
-                              accessorioTemp = acc['path']!;
-                            });
-                          },
+                          onTap: () => setStateDialog(
+                            () => accessorioTemp = acc['path']!,
+                          ),
                           child: Container(
                             decoration: BoxDecoration(
                               color: isSelected
@@ -425,27 +426,41 @@ class _AvatarPageState extends State<AvatarPage> {
                       }).toList(),
                     ),
                     const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            SessionData.accessorioEquipaggiato =
-                                accessorioTemp ?? "";
-                          });
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                (accessorioTemp?.isNotEmpty ?? false)
-                                    ? "Accessorio equipaggiato!"
-                                    : "Accessorio rimosso!",
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              accessorioTemp = null;
+                              SessionData.accessorioEquipaggiato = null;
+                              _aggiornaAvatar();
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Rimuovi accessorio"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              SessionData.accessorioEquipaggiato =
+                                  accessorioTemp;
+                              _aggiornaAvatar();
+                            });
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  (accessorioTemp?.isNotEmpty ?? false)
+                                      ? "Accessorio equipaggiato!"
+                                      : "Accessorio rimosso!",
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        child: const Text("Conferma"),
-                      ),
+                            );
+                          },
+                          child: const Text("Conferma"),
+                        ),
+                      ],
                     ),
                   ],
                 ),
