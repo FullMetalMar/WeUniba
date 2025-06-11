@@ -85,8 +85,16 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF003366)),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            // Cerca l'ultimo messaggio inviato dall'utente
+            final lastUserMessage = _messages.firstWhere(
+              (m) => m['sender'] == 'Tu',
+              orElse: () => {'text': ''},
+            )['text'];
+            Navigator.pop(context, lastUserMessage);
+          },
         ),
+
         title: Row(
           children: [
             if (widget.avatarPath != null)
