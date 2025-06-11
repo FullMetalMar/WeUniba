@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AchievementPage extends StatelessWidget {
-  const AchievementPage({Key? key}) : super(key: key);
+  const AchievementPage({super.key});
 
   final List<Achievement> achievements = const [
     Achievement(

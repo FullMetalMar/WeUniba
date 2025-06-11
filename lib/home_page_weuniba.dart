@@ -12,6 +12,8 @@ import 'settings_page.dart';
 import 'help_page.dart';
 import 'chat_page.dart';
 import 'session_data.dart';
+import 'game_page.dart';
+
 
 class HomePageWeUniba extends StatefulWidget {
   final String username;
@@ -228,9 +230,10 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                             ),
                           );
                         } else if (item['label'] == 'Gioco') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Funzionalità in arrivo!'),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const GamePage(),
                             ),
                           );
                         }
