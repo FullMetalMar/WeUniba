@@ -10,6 +10,7 @@ import 'event_page.dart';
 import 'account_page.dart';
 import 'settings_page.dart';
 import 'help_page.dart';
+import 'chat_page.dart';
 import 'session_data.dart';
 
 
@@ -23,8 +24,6 @@ class HomePageWeUniba extends StatefulWidget {
 }
 
 class _HomePageWeUnibaState extends State<HomePageWeUniba> {
-  int _currentIndex = 0;
-
   final List<Map<String, String>> _gridItems = [
     {'icon': 'assets/buttons/inventory_icon.png', 'label': 'Inventario'},
     {'icon': 'assets/buttons/map_icon.png', 'label': 'Mappa'},
@@ -263,32 +262,65 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
       ),
 
       // Barra di navigazione in basso
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: const Color(0xFF003366),
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-
-          if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AccountPage(username: widget.username),
-              ),
-            );
-          } else if (index == 1) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Sezione chat in arrivo!')),
-            );
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profilo'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
-        ],
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 46, vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AccountPage(username: widget.username),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.person, color: Color(0xFF003366), size: 26),
+                      SizedBox(height: 2),
+                      Text(
+                        'Profilo',
+                        style: TextStyle(
+                          color: Color(0xFF003366),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ChatPage()),
+                    );
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.chat, color: Color(0xFF003366), size: 26),
+                      SizedBox(height: 2),
+                      Text(
+                        'Chat',
+                        style: TextStyle(
+                          color: Color(0xFF003366),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
