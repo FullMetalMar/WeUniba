@@ -4,16 +4,26 @@ import 'package:flutter/material.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String userName;
-  const ChatDetailPage({super.key, required this.userName});
+  final String? initialMessage;
+  final String? avatarPath;
+
+  const ChatDetailPage({
+    super.key,
+    required this.userName,
+    this.initialMessage,
+    this.avatarPath,
+  });
 
   @override
   State<ChatDetailPage> createState() => _ChatDetailPageState();
 }
 
-class _ChatDetailPageState extends State<ChatDetailPage> {
+class _ChatDetailPageState extends State<ChatDetailPage>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, String>> _messages = [];
   final TextEditingController _controller = TextEditingController();
   bool _isBotTyping = false;
+  bool _hasText = false;
 
   final List<String> _botReplies = [
     "Ciao! Come posso aiutarti?",
@@ -31,6 +41,22 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     "Hai già parlato con i tuoi compagni di corso?",
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialMessage != null) {
+      _messages.insert(0, {
+        'sender': widget.userName,
+        'text': widget.initialMessage!,
+      });
+    }
+    _controller.addListener(() {
+      setState(() {
+        _hasText = _controller.text.trim().isNotEmpty;
+      });
+    });
+  }
+
   void _sendMessage() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
@@ -42,8 +68,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     });
 
     Timer(const Duration(seconds: 2), () {
-      final random = Random();
-      final reply = _botReplies[random.nextInt(_botReplies.length)];
+      final reply = _botReplies[Random().nextInt(_botReplies.length)];
       setState(() {
         _isBotTyping = false;
         _messages.insert(0, {'sender': 'Bot', 'text': reply});
@@ -54,18 +79,51 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFEFEFEF),
       appBar: AppBar(
-        title: const Text("Chat", style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF003366),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white,
+        elevation: 1,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF003366)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          children: [
+            if (widget.avatarPath != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Image.asset(
+                  widget.avatarPath!,
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                widget.userName,
+                style: const TextStyle(
+                  color: Color(0xFF003366),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: const [
+          Icon(Icons.videocam, color: Color(0xFF003366)),
+          SizedBox(width: 16),
+          Icon(Icons.call, color: Color(0xFF003366)),
+          SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               reverse: true,
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               itemCount: _messages.length + (_isBotTyping ? 1 : 0),
               itemBuilder: (context, index) {
                 if (_isBotTyping && index == 0) {
@@ -73,28 +131,28 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 }
                 final msgIndex = _isBotTyping ? index - 1 : index;
                 final msg = _messages[msgIndex];
+                final isUser = msg['sender'] == 'Tu';
+
                 return Align(
-                  alignment: msg['sender'] == 'Tu'
+                  alignment: isUser
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
                   child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 8,
-                    ),
-                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: msg['sender'] == 'Tu'
-                          ? const Color(0xFF003366)
-                          : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(12),
+                      color: isUser ? const Color(0xFF003366) : Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(16),
+                        topRight: const Radius.circular(16),
+                        bottomLeft: Radius.circular(isUser ? 16 : 0),
+                        bottomRight: Radius.circular(isUser ? 0 : 16),
+                      ),
                     ),
                     child: Text(
                       msg['text'] ?? '',
                       style: TextStyle(
-                        color: msg['sender'] == 'Tu'
-                            ? Colors.white
-                            : Colors.black,
+                        color: isUser ? Colors.white : Colors.black87,
                       ),
                     ),
                   ),
@@ -102,25 +160,83 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               },
             ),
           ),
-          const Divider(height: 1),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: "Scrivi un messaggio",
+            padding: const EdgeInsets.only(
+              left: 12,
+              right: 8,
+              bottom: 20,
+              top: 4,
+            ),
+
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.add, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              decoration: const InputDecoration(
+                                hintText: "Scrivi un messaggio",
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.emoji_emotions, color: Colors.grey),
+                        ],
+                      ),
                     ),
-                    onSubmitted: (_) => _sendMessage(),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Color(0xFF003366)),
-                  onPressed: _sendMessage,
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) =>
+                        ScaleTransition(scale: animation, child: child),
+                    child: _hasText
+                        ? IconButton(
+                            key: const ValueKey('send'),
+                            icon: const Icon(
+                              Icons.send,
+                              color: Color(0xFF003366),
+                            ),
+                            onPressed: _sendMessage,
+                          )
+                        : Row(
+                            key: const ValueKey('icons'),
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: Color(0xFF003366),
+                                ),
+                                onPressed: () {},
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.mic,
+                                  color: Color(0xFF003366),
+                                ),
+                                onPressed: () {},
+                              ),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -157,14 +273,12 @@ class _TypingIndicatorState extends State<TypingIndicator>
         curve: const Interval(0.0, 0.3, curve: Curves.easeInOut),
       ),
     );
-
     _dotTwo = Tween<double>(begin: 0, end: -4).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.2, 0.5, curve: Curves.easeInOut),
       ),
     );
-
     _dotThree = Tween<double>(begin: 0, end: -4).animate(
       CurvedAnimation(
         parent: _controller,
@@ -203,10 +317,11 @@ class _TypingIndicatorState extends State<TypingIndicator>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          const SizedBox(width: 12),
           _buildDot(_dotOne),
           _buildDot(_dotTwo),
           _buildDot(_dotThree),
