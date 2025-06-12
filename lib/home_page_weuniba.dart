@@ -36,12 +36,80 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
     {'icon': 'assets/buttons/game_icon.png', 'label': 'Gioco'},
   ];
 
+  bool _rewardShown = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_rewardShown) {
+      _rewardShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showDailyRewardPopup();
+      });
+    }
+  }
+
+  void _showDailyRewardPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Ricompensa Giornaliera"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: List.generate(7, (index) {
+                if (index == 0) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      _claimXP();
+                    },
+                    child: _buildRewardBox("50 XP", enabled: true),
+                  );
+                } else {
+                  return _buildRewardBox("?", enabled: false);
+                }
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRewardBox(String label, {required bool enabled}) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: enabled ? Colors.amber : Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade400),
+      ),
+      child: Center(
+        child: enabled
+            ? Text(label, style: const TextStyle(fontWeight: FontWeight.bold))
+            : const Icon(Icons.lock, color: Colors.grey),
+      ),
+    );
+  }
+
+  void _claimXP() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    SessionData.aggiungiXP(context, 50);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          // Top bar blu
           Container(
             height: 90,
             color: const Color(0xFF003366),
@@ -125,8 +193,6 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
               ],
             ),
           ),
-
-          // Pulsante "Torna in MyUniba"
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Align(
@@ -148,8 +214,6 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
               ),
             ),
           ),
-
-          // Griglia dei pulsanti
           Expanded(
             child: Center(
               child: GridView.count(
@@ -173,62 +237,61 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                     ),
                     child: InkWell(
                       onTap: () {
-                        if (item['label'] == 'Inventario') {
+                        // Navigazione in base all'etichetta
+                        final label = item['label'];
+                        if (label == 'Inventario') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const InventoryPage(),
                             ),
                           );
-                        } else if (item['label'] == 'Mappa') {
+                        } else if (label == 'Mappa') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const MapPage()),
                           );
-                        } else if (item['label'] == 'Missioni') {
+                        } else if (label == 'Missioni') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const MissionsPage(),
                             ),
-                          ).then((_) {
-                            // Aggiorna la home per riflettere i nuovi XP
-                            setState(() {});
-                          });
-                        } else if (item['label'] == 'Materiale') {
+                          ).then((_) => setState(() {}));
+                        } else if (label == 'Materiale') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const LearningMaterialPage(),
                             ),
                           );
-                        } else if (item['label'] == 'Negozio') {
+                        } else if (label == 'Negozio') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const ShopPage()),
                           );
-                        } else if (item['label'] == 'Tutor') {
+                        } else if (label == 'Tutor') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const TutorPage(),
                             ),
                           );
-                        } else if (item['label'] == 'Obiettivi') {
+                        } else if (label == 'Obiettivi') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const AchievementPage(),
                             ),
                           );
-                        } else if (item['label'] == 'Eventi') {
+                        } else if (label == 'Eventi') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const EventPage(),
                             ),
                           );
-                        } else if (item['label'] == 'Gioco') {
+                        } else if (label == 'Gioco') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const GamePage()),
@@ -259,8 +322,6 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
           ),
         ],
       ),
-
-      // Barra di navigazione in basso
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         child: SafeArea(
