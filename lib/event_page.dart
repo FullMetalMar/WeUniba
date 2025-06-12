@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'session_data.dart'; // Assicurati di importare SessionData
 
 class EventPage extends StatefulWidget {
   const EventPage({super.key});
@@ -76,7 +77,7 @@ class _EventPageState extends State<EventPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Annulla'),
           ),
           ElevatedButton(
@@ -86,10 +87,11 @@ class _EventPageState extends State<EventPage> {
               Navigator.pop(context);
               if (rispostaUtente == corretta) {
                 setState(() => evento.confermato = true);
+                SessionData.aggiungiXP(context, 30);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Partecipazione confermata a "${evento.titolo}"',
+                      'Partecipazione confermata a "${evento.titolo}" - 30 XP guadagnati!',
                     ),
                   ),
                 );
@@ -170,11 +172,11 @@ class _EventPageState extends State<EventPage> {
                     decoration: BoxDecoration(
                       color: isPassato ? Colors.grey[100] : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black12,
                           blurRadius: 5,
-                          offset: const Offset(0, 3),
+                          offset: Offset(0, 3),
                         ),
                       ],
                     ),

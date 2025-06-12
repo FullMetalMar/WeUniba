@@ -11,6 +11,9 @@ class SessionData {
   static int livello = 5;
   static int xpCorrente = 70;
   static int xpMassimo = 100;
+  static final ValueNotifier<double> xpAnimatedNotifier = ValueNotifier<double>(
+    xpCorrente.toDouble(),
+  );
 
   static String? accessorioEquipaggiato; // può essere null
 
@@ -21,7 +24,11 @@ class SessionData {
     while (xpCorrente >= xpMassimo) {
       xpCorrente -= xpMassimo;
       livello++;
+      xpMassimo = _calcolaXPPerLivello(livello);
     }
+
+    // Notifica l'XP animata per la barra animata
+    xpAnimatedNotifier.value = xpCorrente.toDouble();
 
     if (livello > oldLevel) {
       showDialog(
@@ -46,8 +53,11 @@ class SessionData {
     }
   }
 
-  // --- Inventario iniziale ---
+  static int _calcolaXPPerLivello(int livello) {
+    return 100 + (livello - 1) * 25;
+  }
 
+  // --- Inventario iniziale ---
   static final List<Map<String, String>> badgeInventario = [
     {
       "titolo": "Lag Spirituale",

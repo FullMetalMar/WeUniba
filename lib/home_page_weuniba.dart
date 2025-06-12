@@ -65,6 +65,11 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba>
           });
         });
 
+    // 🟦 LISTENER PER XP DINAMICA
+    SessionData.xpAnimatedNotifier.addListener(() {
+      _animateXPBarTo(SessionData.xpAnimatedNotifier.value);
+    });
+
     if (_showDailyPopup) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _showDailyRewardPopup(),
@@ -135,6 +140,19 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba>
         ),
       ),
     );
+  }
+
+  void _animateXPBarTo(double targetXP) {
+    _xpAnimation =
+        Tween<double>(begin: _animatedXP, end: targetXP).animate(
+          CurvedAnimation(parent: _xpController, curve: Curves.easeInOut),
+        )..addListener(() {
+          setState(() {
+            _animatedXP = _xpAnimation.value;
+          });
+        });
+
+    _xpController.forward(from: 0);
   }
 
   void _triggerXPRewardAnimation() async {
