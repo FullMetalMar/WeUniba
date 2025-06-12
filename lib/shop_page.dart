@@ -12,7 +12,6 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage>
     with SingleTickerProviderStateMixin {
   String? selectedCategory;
-  int cfuBalance = 42;
   final AudioPlayer _audioPlayer = AudioPlayer();
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -197,18 +196,21 @@ class _ShopPageState extends State<ShopPage>
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: Row(
-              children: [
-                Text(
-                  '$cfuBalance',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+            child: ValueListenableBuilder<int>(
+              valueListenable: SessionData.cfuNotifier,
+              builder: (context, cfu, _) => Row(
+                children: [
+                  Text(
+                    '$cfu',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Image.asset('assets/coin/CFU2.png', width: 36, height: 36),
-              ],
+                  const SizedBox(width: 4),
+                  Image.asset('assets/coin/CFU2.png', width: 36, height: 36),
+                ],
+              ),
             ),
           ),
         ],
@@ -310,7 +312,8 @@ class _ShopPageState extends State<ShopPage>
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
-                                      if (cfuBalance < item['prezzo']) {
+                                      final prezzo = item['prezzo'] as int;
+                                      if (SessionData.cfuNotifier.value < prezzo) {
                                         Navigator.pop(context);
                                         ScaffoldMessenger.of(
                                           context,
@@ -324,13 +327,12 @@ class _ShopPageState extends State<ShopPage>
                                         return;
                                       }
 
-                                      setState(() {
-                                        aggiungiAllInventario(
-                                          selectedCategory!,
-                                          item,
-                                        );
-                                        cfuBalance -= item['prezzo'] as int;
-                                      });
+                                      // Sottrai CFU e aggiungi oggetto all’inventario
+                                      SessionData.cfuNotifier.value -= prezzo;
+                                      aggiungiAllInventario(
+                                        selectedCategory!,
+                                        item,
+                                      );
 
                                       Navigator.pop(context);
                                       mostraAnimazioneAcquisto();

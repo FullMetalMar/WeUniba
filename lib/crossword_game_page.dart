@@ -48,11 +48,11 @@ class _CrosswordGamePageState extends State<CrosswordGamePage> {
       },
     );
 
-    if (value != null && value.isNotEmpty) {
+    /*if (value.isNotEmpty) {
       setState(() {
         userGrid[row][col] = value;
       });
-    }
+    }*/
   }
 
   Widget buildCell(int row, int col) {
