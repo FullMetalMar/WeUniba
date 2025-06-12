@@ -67,8 +67,31 @@ class _MissionsPageState extends State<MissionsPage> {
   final Set<int> _completedMissions = {};
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+  final int _xpRicompensa = 15;
+  final int _cfuRicompensa = 3;
+
   Future<void> _playSuccessSound() async {
     await _audioPlayer.play(AssetSource('audio/success.mp3'));
+  }
+
+  Future<void> _completaMissione(int index) async {
+    setState(() {
+      _completedMissions.add(index);
+    });
+
+    // ✅ Guadagna XP e CFU
+    SessionData.aggiungiXP(context, _xpRicompensa);
+    SessionData.aggiungiCFU(_cfuRicompensa);
+
+    await _playSuccessSound();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Hai completato: ${_missions[index]['missione']} (+$_xpRicompensa XP, +$_cfuRicompensa CFU)',
+        ),
+      ),
+    );
   }
 
   Future<void> _scanQRCodeAndComplete(int index) async {
@@ -76,19 +99,9 @@ class _MissionsPageState extends State<MissionsPage> {
       context,
       MaterialPageRoute(builder: (context) => const QRScannerPage()),
     );
+
     if (result != null && result is String && result.isNotEmpty) {
-      setState(() {
-        _completedMissions.add(index);
-      });
-      SessionData.aggiungiXP(context, 15); // aggiungi XP
-      await _playSuccessSound();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'QR validato! Hai completato: ${_missions[index]['missione']} (+15 XP)',
-          ),
-        ),
-      );
+      await _completaMissione(index);
     }
   }
 
@@ -117,9 +130,7 @@ class _MissionsPageState extends State<MissionsPage> {
         itemBuilder: (context, index) {
           final mission = _missions[index];
           final isCompleted = _completedMissions.contains(index);
-          final requiresQR = mission['validazione']!.toLowerCase().contains(
-            'qr code',
-          );
+          final requiresQR = mission['validazione']!.toLowerCase().contains('qr code');
 
           return AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -174,21 +185,7 @@ class _MissionsPageState extends State<MissionsPage> {
                             if (requiresQR) {
                               await _scanQRCodeAndComplete(index);
                             } else {
-                              setState(() {
-                                _completedMissions.add(index);
-                              });
-                              SessionData.aggiungiXP(
-                                context,
-                                15,
-                              ); // aggiungi XP
-                              await _playSuccessSound();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Hai completato: ${mission['missione']} (+15 XP)',
-                                  ),
-                                ),
-                              );
+                              await _completaMissione(index);
                             }
                           },
                           style: ElevatedButton.styleFrom(

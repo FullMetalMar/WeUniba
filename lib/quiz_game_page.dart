@@ -100,31 +100,45 @@ class _QuizGamePageState extends State<QuizGamePage> with TickerProviderStateMix
 
   void _showResult() {
     int cfu = 0;
+    int xp = 0;
+
     switch (correctAnswers) {
       case 2:
         cfu = 10;
+        xp = 20;
         break;
       case 3:
         cfu = 15;
+        xp = 30;
         break;
       case 4:
         cfu = 25;
+        xp = 50;
         break;
       case 5:
         cfu = 40;
+        xp = 80;
         break;
+      default:
+        cfu = 0;
+        xp = 0;
     }
 
-    // 👉 AGGIUNTA: guadagno CFU
     if (cfu > 0) {
       SessionData.aggiungiCFU(cfu);
+    }
+    if (xp > 0) {
+      SessionData.aggiungiXP(context, xp);
     }
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("Risultato"),
-        content: Text("Hai risposto correttamente a $correctAnswers/5 domande.\nHai guadagnato $cfu CFU."),
+        content: Text(
+          "Hai risposto correttamente a $correctAnswers/5 domande.\n"
+          "Hai guadagnato $cfu CFU e $xp XP.",
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -259,6 +273,7 @@ class Question {
 
   Question({required this.text, required this.options, required this.correctAnswer});
 }
+
 
 
 final Map<String, List<Question>> quizDatabase = {

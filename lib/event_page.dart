@@ -95,12 +95,17 @@ class _EventPageState extends State<EventPage> {
               Navigator.pop(context);
               if (rispostaUtente == corretta) {
                 setState(() => evento.confermato = true);
+
+                // ✅ Ricompensa XP + CFU
                 SessionData.aggiungiXP(context, 30);
+                SessionData.aggiungiCFU(5);
+
                 _audioPlayer.play(AssetSource('audio/success.mp3'));
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Partecipazione confermata a "${evento.titolo}" - 30 XP guadagnati!',
+                      'Presenza confermata a "${evento.titolo}" — +30 XP, +5 CFU!',
                     ),
                   ),
                 );
@@ -198,9 +203,7 @@ class _EventPageState extends State<EventPage> {
                             contentPadding: EdgeInsets.zero,
                             leading: Icon(
                               _iconForTipo(evento.tipo),
-                              color: isPassato
-                                  ? Colors.grey
-                                  : Colors.blueAccent,
+                              color: isPassato ? Colors.grey : Colors.blueAccent,
                               size: 36,
                             ),
                             title: Text(
@@ -208,9 +211,8 @@ class _EventPageState extends State<EventPage> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                decoration: isPassato
-                                    ? TextDecoration.lineThrough
-                                    : null,
+                                decoration:
+                                    isPassato ? TextDecoration.lineThrough : null,
                               ),
                             ),
                             subtitle: Column(
