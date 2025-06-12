@@ -1,4 +1,7 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:weuniba_flutter/map_page.dart';
 import 'package:weuniba_flutter/achievement_page.dart';
 import 'inventory_page.dart';
@@ -23,7 +26,8 @@ class HomePageWeUniba extends StatefulWidget {
   State<HomePageWeUniba> createState() => _HomePageWeUnibaState();
 }
 
-class _HomePageWeUnibaState extends State<HomePageWeUniba> {
+class _HomePageWeUnibaState extends State<HomePageWeUniba>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, String>> _gridItems = [
     {'icon': 'assets/buttons/inventory_icon.png', 'label': 'Inventario'},
     {'icon': 'assets/buttons/map_icon.png', 'label': 'Mappa'},
@@ -36,17 +40,42 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
     {'icon': 'assets/buttons/game_icon.png', 'label': 'Gioco'},
   ];
 
-  bool _rewardShown = false;
+  final bool _showDailyPopup = true;
+  bool _isAnimatingXP = false;
+
+  late AnimationController _xpController;
+  late Animation<double> _xpAnimation;
+  double _animatedXP = SessionData.xpCorrente.toDouble();
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_rewardShown) {
-      _rewardShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showDailyRewardPopup();
-      });
+  void initState() {
+    super.initState();
+
+    _xpController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _xpAnimation =
+        Tween<double>(begin: _animatedXP, end: _animatedXP).animate(
+          CurvedAnimation(parent: _xpController, curve: Curves.easeInOut),
+        )..addListener(() {
+          setState(() {
+            _animatedXP = _xpAnimation.value;
+          });
+        });
+
+    if (_showDailyPopup) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _showDailyRewardPopup(),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    _xpController.dispose();
+    super.dispose();
   }
 
   void _showDailyRewardPopup() {
@@ -55,24 +84,50 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Ricompensa Giornaliera"),
+        contentPadding: const EdgeInsets.all(24),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const Text(
+              'Daily Reward',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
             Wrap(
-              spacing: 12,
-              runSpacing: 12,
+              spacing: 10,
+              runSpacing: 10,
               children: List.generate(7, (index) {
                 if (index == 0) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.pop(context);
-                      _claimXP();
+                      Navigator.of(context).pop();
+                      _triggerXPRewardAnimation();
                     },
-                    child: _buildRewardBox("50 XP", enabled: true),
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        '50 XP',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   );
                 } else {
-                  return _buildRewardBox("?", enabled: false);
+                  return Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.lock_outline, color: Colors.grey),
+                  );
                 }
               }),
             ),
@@ -82,27 +137,81 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
     );
   }
 
-  Widget _buildRewardBox(String label, {required bool enabled}) {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: enabled ? Colors.amber : Colors.grey[300],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade400),
-      ),
-      child: Center(
-        child: enabled
-            ? Text(label, style: const TextStyle(fontWeight: FontWeight.bold))
-            : const Icon(Icons.lock, color: Colors.grey),
-      ),
-    );
-  }
+  void _triggerXPRewardAnimation() async {
+    if (_isAnimatingXP) return;
+    setState(() => _isAnimatingXP = true);
 
-  void _claimXP() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    SessionData.aggiungiXP(context, 50);
-    setState(() {});
+    int rewardXP = 50;
+    int xpToAdd = rewardXP;
+
+    int oldLevel = SessionData.livello;
+
+    // Calcolo XP totale per gestire overflow barra e passaggio livelli
+    int startTotalXP =
+        SessionData.livello * SessionData.xpMassimo + SessionData.xpCorrente;
+    int targetTotalXP = startTotalXP + xpToAdd;
+
+    while (startTotalXP < targetTotalXP) {
+      int currentLevel = startTotalXP ~/ SessionData.xpMassimo;
+      int currentXPInLevel = startTotalXP % SessionData.xpMassimo;
+
+      int nextLevelXP = (currentLevel + 1) * SessionData.xpMassimo;
+      int nextXPTarget = min(nextLevelXP, targetTotalXP);
+
+      int xpThisStep = nextXPTarget - startTotalXP;
+
+      _xpAnimation =
+          Tween<double>(
+              begin: _animatedXP,
+              end: currentXPInLevel + xpThisStep.toDouble(),
+            ).animate(
+              CurvedAnimation(parent: _xpController, curve: Curves.easeInOut),
+            )
+            ..addListener(() {
+              setState(() {
+                _animatedXP = _xpAnimation.value;
+              });
+            });
+
+      _xpController.reset();
+      await _xpController.forward();
+
+      startTotalXP += xpThisStep;
+
+      // Aggiorna dati reali
+      SessionData.xpCorrente = (startTotalXP % SessionData.xpMassimo).toInt();
+      SessionData.livello = currentLevel;
+
+      // Popup se si è saliti di livello
+      if (SessionData.livello > oldLevel) {
+        oldLevel = SessionData.livello;
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text(
+              '🎉 Level Up!',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Text(
+              'Complimenti! Ora sei al livello ${SessionData.livello}',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Ok'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+
+    setState(() {
+      _isAnimatingXP = false;
+    });
   }
 
   @override
@@ -110,6 +219,7 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
     return Scaffold(
       body: Column(
         children: [
+          // Top bar blu
           Container(
             height: 90,
             color: const Color(0xFF003366),
@@ -174,10 +284,7 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                           ),
                           child: FractionallySizedBox(
                             alignment: Alignment.centerLeft,
-                            widthFactor: SessionData.xpMassimo == 0
-                                ? 0
-                                : SessionData.xpCorrente /
-                                      SessionData.xpMassimo,
+                            widthFactor: _animatedXP / SessionData.xpMassimo,
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -198,9 +305,7 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF003366),
                   shape: RoundedRectangleBorder(
@@ -237,78 +342,88 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                     ),
                     child: InkWell(
                       onTap: () {
-                        // Navigazione in base all'etichetta
-                        final label = item['label'];
-                        if (label == 'Inventario') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const InventoryPage(),
-                            ),
-                          );
-                        } else if (label == 'Mappa') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const MapPage()),
-                          );
-                        } else if (label == 'Missioni') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const MissionsPage(),
-                            ),
-                          ).then((_) => setState(() {}));
-                        } else if (label == 'Materiale') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LearningMaterialPage(),
-                            ),
-                          );
-                        } else if (label == 'Negozio') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const ShopPage()),
-                          );
-                        } else if (label == 'Tutor') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const TutorPage(),
-                            ),
-                          );
-                        } else if (label == 'Obiettivi') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AchievementPage(),
-                            ),
-                          );
-                        } else if (label == 'Eventi') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const EventPage(),
-                            ),
-                          );
-                        } else if (label == 'Gioco') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const GamePage()),
-                          );
+                        switch (item['label']) {
+                          case 'Inventario':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const InventoryPage(),
+                              ),
+                            );
+                            break;
+                          case 'Mappa':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const MapPage(),
+                              ),
+                            );
+                            break;
+                          case 'Missioni':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const MissionsPage(),
+                              ),
+                            ).then((_) => setState(() {}));
+                            break;
+                          case 'Materiale':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LearningMaterialPage(),
+                              ),
+                            );
+                            break;
+                          case 'Negozio':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ShopPage(),
+                              ),
+                            );
+                            break;
+                          case 'Tutor':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const TutorPage(),
+                              ),
+                            );
+                            break;
+                          case 'Obiettivi':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const AchievementPage(),
+                              ),
+                            );
+                            break;
+                          case 'Eventi':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const EventPage(),
+                              ),
+                            );
+                            break;
+                          case 'Gioco':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const GamePage(),
+                              ),
+                            );
+                            break;
                         }
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset(
-                            item['icon'] ?? '',
-                            width: 36,
-                            height: 36,
-                          ),
+                          Image.asset(item['icon']!, width: 36, height: 36),
                           const SizedBox(height: 8),
                           Text(
-                            item['label'] ?? '',
+                            item['label']!,
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 13),
                           ),
@@ -331,15 +446,13 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            AccountPage(username: widget.username),
-                      ),
-                    );
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          AccountPage(username: widget.username),
+                    ),
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
@@ -356,12 +469,10 @@ class _HomePageWeUnibaState extends State<HomePageWeUniba> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ChatPage()),
-                    );
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ChatPage()),
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
