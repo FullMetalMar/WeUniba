@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'session_data.dart'; // Assicurati di importare SessionData
+import 'session_data.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class EventPage extends StatefulWidget {
   const EventPage({super.key});
@@ -12,6 +13,7 @@ enum EventoFiltro { tutti, futuri, passati }
 
 class _EventPageState extends State<EventPage> {
   EventoFiltro filtroCorrente = EventoFiltro.tutti;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   final List<Evento> eventi = [
     Evento(
@@ -54,6 +56,12 @@ class _EventPageState extends State<EventPage> {
     }
   }
 
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
   void _confermaPartecipazione(Evento evento) {
     final controller = TextEditingController();
 
@@ -88,6 +96,7 @@ class _EventPageState extends State<EventPage> {
               if (rispostaUtente == corretta) {
                 setState(() => evento.confermato = true);
                 SessionData.aggiungiXP(context, 30);
+                _audioPlayer.play(AssetSource('audio/success.mp3'));
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
