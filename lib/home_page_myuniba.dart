@@ -59,10 +59,10 @@ class _HomePageMyUnibaState extends State<HomePageMyUniba> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        PageRouteBuilder(
-                          transitionDuration: const Duration(milliseconds: 800),
-                          pageBuilder: (_, __, ___) =>
-                              const WeUnibaTransitionScreen(),
+                        MaterialPageRoute(
+                          builder: (context) => WeUnibaTransitionScreen(
+                            username: widget.username,
+                          ),
                         ),
                       );
                     },

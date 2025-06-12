@@ -47,6 +47,8 @@ class InventoryPage extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 48),
               ),
               onPressed: () {
+                Navigator.pop(context);
+
                 switch (tipo) {
                   case "badge":
                     SessionData.badgePath = imagePath;
@@ -55,8 +57,25 @@ class InventoryPage extends StatelessWidget {
                   case "portafortuna":
                     SessionData.portafortunaPath = imagePath;
                     break;
+                  case "accessorio":
+                    SessionData.accessorioEquipaggiato = title;
+
+                    if (title == "Occhiali da vista" &&
+                        SessionData.avatarPath.isNotEmpty) {
+                      final regex = RegExp(r'Avatar_(\w{2})_(\w{3})_(\w)\.png');
+                      final match = regex.firstMatch(SessionData.avatarPath);
+                      if (match != null) {
+                        final complexion = match.group(1);
+                        final hair = match.group(2);
+                        final gender = match.group(3);
+
+                        SessionData.avatarPath =
+                            'assets/avatar/accessories/avatar_with_occhiali/Avatar_${complexion}_${hair}_${gender}_occhiali.png';
+                      }
+                    }
+                    break;
                 }
-                Navigator.pop(context);
+
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text('$title equipaggiato!')));
@@ -180,7 +199,7 @@ class InventoryPage extends StatelessWidget {
                     context,
                     accessorio['nome']!,
                     accessorio['path']!,
-                    "accessorio",
+                    "accessorio", // gestione dedicata
                   );
                 }).toList(),
               ),

@@ -9,11 +9,14 @@ class AvatarPage extends StatefulWidget {
 }
 
 class _AvatarPageState extends State<AvatarPage> {
-  String avatarScelto = SessionData.avatarPath.contains("_f.")
-      ? "female"
-      : SessionData.avatarPath.contains("_m.")
-      ? "male"
-      : "female"; // default
+  String avatarScelto = (() {
+    final regex = RegExp(r'Avatar_\w{2}_\w{3}_(m|f)');
+    final match = regex.firstMatch(SessionData.avatarPath);
+    if (match != null) {
+      return match.group(1) == "m" ? "male" : "female";
+    }
+    return "female";
+  })();
 
   String carnagioneScelta = SessionData.avatarPath.contains("bla")
       ? "bla"
@@ -30,15 +33,19 @@ class _AvatarPageState extends State<AvatarPage> {
 
     // Verifica se gli occhiali sono equipaggiati
     final occhialiEquipaggiati =
-        SessionData.accessorioEquipaggiato ==
-        "assets/avatar/accessories/accessorio_occhiali.png";
+        SessionData.accessorioEquipaggiato != null &&
+        SessionData.accessoriInventario.any(
+          (item) =>
+              item['nome'] == "Occhiali da vista" &&
+              item['path'] == SessionData.accessorioEquipaggiato,
+        );
 
     if (occhialiEquipaggiati) {
       SessionData.avatarPath =
           "assets/avatar/accessories/avatar_with_occhiali/Avatar_${carnagioneScelta}_${capelliScelti}_${gender}_occhiali.png";
     } else {
       SessionData.avatarPath =
-          "assets/avatar/complexion/$folder/Avatar_${carnagioneScelta}_${capelliScelti}_${gender}.png";
+          "assets/avatar/complexion/$folder/Avatar_${carnagioneScelta}_${capelliScelti}_$gender.png";
     }
 
     setState(() {}); // Aggiorna l'interfaccia

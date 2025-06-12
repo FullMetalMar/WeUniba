@@ -3,7 +3,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'home_page_weuniba.dart';
 
 class WeUnibaTransitionScreen extends StatefulWidget {
-  const WeUnibaTransitionScreen({super.key});
+  final String username;
+  const WeUnibaTransitionScreen({super.key, required this.username});
 
   @override
   State<WeUnibaTransitionScreen> createState() =>
@@ -39,7 +40,7 @@ class _WeUnibaTransitionScreenState extends State<WeUnibaTransitionScreen>
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const HomePageWeUniba(username: "esempio"),
+          builder: (_) => HomePageWeUniba(username: widget.username),
         ),
       );
     });
