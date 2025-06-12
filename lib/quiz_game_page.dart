@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'session_data.dart'; // <--- IMPORTANTE
 
-const Color bluScuro = Color(0xFF004070);
+const Color bluScuro = Color(0xFF003366);
 const Color verde = Colors.green;
 const Color rosso = Colors.red;
 
@@ -112,6 +113,11 @@ class _QuizGamePageState extends State<QuizGamePage> with TickerProviderStateMix
       case 5:
         cfu = 40;
         break;
+    }
+
+    // 👉 AGGIUNTA: guadagno CFU
+    if (cfu > 0) {
+      SessionData.aggiungiCFU(cfu);
     }
 
     showDialog(
@@ -229,6 +235,7 @@ class _QuizGamePageState extends State<QuizGamePage> with TickerProviderStateMix
     return Scaffold(
       appBar: AppBar(
         backgroundColor: bluScuro,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           'Quiz - ${widget.subject}',
           style: const TextStyle(color: Colors.white),
@@ -252,6 +259,7 @@ class Question {
 
   Question({required this.text, required this.options, required this.correctAnswer});
 }
+
 
 final Map<String, List<Question>> quizDatabase = {
   'Programmazione': [

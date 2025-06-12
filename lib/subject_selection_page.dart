@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'quiz_game_page.dart';
 import 'crossword_game_page.dart';
 
-const Color bluScuro = Color(0xFF004070);
+const Color bluScuro = Color(0xFF003366);
 
 class SubjectSelectionPage extends StatelessWidget {
   final String gameType;
@@ -50,20 +50,24 @@ class SubjectSelectionPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: bluScuro,
-        title: Text(
-          'Seleziona materia - $gameType',
-          style: const TextStyle(color: Colors.white, fontFamily: 'Roboto'),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+   appBar: AppBar(
+  backgroundColor: bluScuro,
+  iconTheme: const IconThemeData(color: Colors.white), // ← questa riga rende la freccia bianca
+  title: Text(
+    'Seleziona materia - $gameType',
+    style: const TextStyle(color: Colors.white, fontFamily: 'Roboto'),
+  ),
+  centerTitle: true,
+),
+    body: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildSubjectButton(context, 'Programmazione'),
             const SizedBox(height: 16),
@@ -73,6 +77,7 @@ class SubjectSelectionPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'subject_selection_page.dart';
 
-const Color bluScuro = Color(0xFF004070);
+const Color bluScuro = Color(0xFF003366);
 
 class GamePage extends StatelessWidget {
   const GamePage({Key? key}) : super(key: key);

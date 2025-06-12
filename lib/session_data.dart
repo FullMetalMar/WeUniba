@@ -15,6 +15,9 @@ class SessionData {
     xpCorrente.toDouble(),
   );
 
+  // CFU gestiti tramite ValueNotifier per aggiornamenti in tempo reale
+  static final ValueNotifier<int> cfuNotifier = ValueNotifier<int>(0);
+
   static String? accessorioEquipaggiato; // può essere null
 
   static void aggiungiXP(BuildContext context, int xp) {
@@ -51,6 +54,10 @@ class SessionData {
         ),
       );
     }
+  }
+
+  static void aggiungiCFU(int valore) {
+    cfuNotifier.value += valore;
   }
 
   static int _calcolaXPPerLivello(int livello) {
